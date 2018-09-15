@@ -1,0 +1,13 @@
+updatePeriod: 300
+regionStyle:
+  town:
+    strokeColor: '#FF0000'
+    strokeOpacity: 0.8
+    strokeWeight: 3
+    fillColor: '#FF0000'
+    fillOpacity: 0.35
+    boost: false
+  ancientcity:
+  mine:
+homeicon: default
+capitalicon: king
