@@ -19,6 +19,15 @@ public class ItemUtil {
 	}
 	
 	public static boolean compareDisplayName(ItemStack o1, ItemStack o2) {
+		if(o1 == null && o2 == null)
+			return true;
+		
+		if(o1 == null && o2 != null)
+			return false;
+		
+		if(o1 != null && o2 == null)
+			return false;
+		
 		if(o1.getType() != o2.getType())
 			return false;
 		

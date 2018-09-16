@@ -279,7 +279,7 @@ public class UniverseManager implements Listener {
 			type = "town";
 		} else if (plotOwner instanceof AncientCity) {
 			type = "ancientCity";
-		} else if (plotOwner instanceof Mine) {
+		} else if (plotOwner instanceof Mine){
 			type = "mine";
 		} else {
 			return;
@@ -291,7 +291,7 @@ public class UniverseManager implements Listener {
 		ps.setInt(2, plot.getX());
 		ps.setInt(3, plot.getZ());
 		ps.setString(4, type);
-		ps.setString(5, (type.equals(mine)) ? null : plotOwner.getUuid().toString());
+		ps.setString(5, (plotOwner instanceof UUIDPlotOwner) ? ((UUIDPlotOwner) plotOwner).getUuid().toString() : null);
 		ps.setString(6, "");
 
 		ps.executeUpdate();
@@ -397,7 +397,7 @@ public class UniverseManager implements Listener {
 		PreparedStatement ps = PSTable.save_plot;
 		
 		ps.setString(1, plotOwnerType);
-		ps.setString(2, (plotOwnerType.equals("mine") ? null : plotOwner.getUuid().toString()));
+		ps.setString(2, (plotOwner instanceof UUIDPlotOwner) ? ((UUIDPlotOwner) plotOwner).getUuid().toString() : null);
 		ps.setString(3, plot.getType().toString());
 		ps.setString(4, plot.getOwner().getUuid().toString());
 		ps.setString(5, residents.toString());

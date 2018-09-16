@@ -9,9 +9,9 @@ import org.bukkit.Location;
 import com.tistory.hornslied.evitaonline.balance.BalanceOwner;
 import com.tistory.hornslied.evitaonline.universe.EvitaPlayer;
 import com.tistory.hornslied.evitaonline.universe.nation.Nation;
-import com.tistory.hornslied.evitaonline.universe.plot.PlotOwner;
+import com.tistory.hornslied.evitaonline.universe.plot.UUIDPlotOwner;
 
-public class Town extends PlotOwner implements BalanceOwner {
+public class Town extends UUIDPlotOwner implements BalanceOwner {
 	
 	private String name;
 	private long registered;

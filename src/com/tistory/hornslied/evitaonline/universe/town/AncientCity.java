@@ -2,9 +2,9 @@ package com.tistory.hornslied.evitaonline.universe.town;
 
 import java.util.UUID;
 
-import com.tistory.hornslied.evitaonline.universe.plot.PlotOwner;
+import com.tistory.hornslied.evitaonline.universe.plot.UUIDPlotOwner;
 
-public class AncientCity extends PlotOwner {
+public class AncientCity extends UUIDPlotOwner {
 	
 	private String name;
 	

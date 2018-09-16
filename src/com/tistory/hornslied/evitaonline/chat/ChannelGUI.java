@@ -71,7 +71,6 @@ public class ChannelGUI implements InventoryProvider {
 
 	@Override
 	public void init(Player player, InventoryContents contents) {
-		
 	}
 
 	@Override

@@ -1,6 +1,7 @@
 package com.tistory.hornslied.evitaonline.universe;
 
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -9,6 +10,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 
 import com.tistory.hornslied.evitaonline.EvitaOnline;
+import com.tistory.hornslied.evitaonline.structure.Structure;
 import com.tistory.hornslied.evitaonline.universe.plot.Plot;
 import com.tistory.hornslied.evitaonline.universe.plot.PlotOwner;
 import com.tistory.hornslied.evitaonline.universe.town.Town;
@@ -18,6 +20,7 @@ public class EvitaWorld {
 	private String name;
 	
 	private ConcurrentHashMap<Coord, Plot> plots;
+	private HashMap<BlockCoord, Structure> structureBlocks;
 	
 	private boolean claimable;
 	private boolean endermanGrief;
@@ -29,6 +32,7 @@ public class EvitaWorld {
 		this.name = name;
 		
 		plots = new ConcurrentHashMap<>();
+		structureBlocks = new HashMap<>();
 		
 		claimable = true;
 		endermanGrief = false;

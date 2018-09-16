@@ -2,20 +2,15 @@ package com.tistory.hornslied.evitaonline.universe.plot;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 
 public class PlotOwner {
-	
-	protected UUID uuid;
 
 	protected Set<Plot> plots;
 
 	protected boolean pvp;
 	protected boolean forcePvp;
 	
-	public PlotOwner(UUID uuid) {
-		this.uuid = uuid;
-		
+	public PlotOwner() {
 		plots = new HashSet<>();
 		
 		pvp = false;
@@ -32,10 +27,6 @@ public class PlotOwner {
 	
 	public void addPlot(Plot plot) {
 		plots.add(plot);
-	}
-	
-	public UUID getUuid() {
-		return uuid;
 	}
 	
 	public Set<Plot> getPlots() {

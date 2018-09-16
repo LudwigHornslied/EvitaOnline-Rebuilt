@@ -1,8 +1,6 @@
 package com.tistory.hornslied.evitaonline.selection;
 
 import java.util.HashMap;
-import java.util.List;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -12,23 +10,22 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitRunnable;
-
 import com.tistory.hornslied.evitaonline.EvitaOnline;
 import com.tistory.hornslied.evitaonline.commons.util.C;
+import com.tistory.hornslied.evitaonline.commons.util.ItemUtil;
+import com.tistory.hornslied.evitaonline.commons.util.P;
 
 public class SelectionManager implements Listener {
 
 	private EvitaOnline plugin;
 	
-	private Material wandMaterial = Material.DIAMOND_HOE;
-	private String wandName = C.BYellow + "";
-	private List<String> wandLore;
+	private ItemStack wand = ItemUtil.create(
+			Material.BLAZE_ROD,
+			C.BCyan + "완드", 
+			C.BDarkGray + "범위 지정용 완드");
 	
 	private HashMap<Player, Block> selection1;
 	private HashMap<Player, Block> selection2;
-	
-	private HashMap<Player, Block[]> fakeBlocks;
 	
 	public SelectionManager(EvitaOnline plugin) {
 		this.plugin = plugin;
@@ -36,42 +33,7 @@ public class SelectionManager implements Listener {
 		selection1 = new HashMap<>();
 		selection2 = new HashMap<>();
 		
-		runCheckHoldingWand();
-	}
-	
-	private void runCheckHoldingWand() {
-		new BukkitRunnable() {
-
-			@SuppressWarnings("deprecation")
-			@Override
-			public void run() {
-				
-				for(Player player : Bukkit.getOnlinePlayers()) {
-					ItemStack item = player.getInventory().getItemInMainHand();
-					
-					if(item == null)
-						return;
-					
-					if(item.getType() != wandMaterial || !item.hasItemMeta() 
-							|| !item.getItemMeta().hasDisplayName() || !item.getItemMeta().getDisplayName().equals(wandName)) {
-						if(fakeBlocks.containsKey(player)) {
-							for(Block block : fakeBlocks.get(player)) {
-								
-								
-								player.sendBlockChange(block.getLocation(), block.getType(), block.getData());
-							}
-						}
-					} else {
-						if(!fakeBlocks.containsKey(player)) {
-							for(Block block : fakeBlocks.get(player)) {
-								player.sendBlockChange(block.getLocation(), Material.GLOWSTONE, (byte) 0);
-							}
-						}
-					}
-				}
-			}
-			
-		}.runTaskTimerAsynchronously(plugin, 0, 1);
+		Bukkit.getPluginManager().registerEvents(this, this.plugin);
 	}
 	
 	public Selection getSelection(Player player) {
@@ -104,11 +66,20 @@ public class SelectionManager implements Listener {
 		
 		Player player = event.getPlayer();
 		
+		ItemStack item = player.getInventory().getItemInMainHand();
+		
+		if(!wand.isSimilar(item))
+			return;
+		
+		event.setCancelled(true);
+		
 		switch(event.getAction()) {
 		case LEFT_CLICK_BLOCK:
 			selection1.put(player, event.getClickedBlock());
+			player.sendMessage(P.Server + C.Yellow + "1번 선택 지점 지정.");
 			break;
 		case RIGHT_CLICK_BLOCK:
+			player.sendMessage(P.Server + C.Yellow + "2번 선택 지점 지정.");
 			selection2.put(player, event.getClickedBlock());
 			break;
 		default:

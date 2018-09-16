@@ -1,11 +1,13 @@
 package com.tistory.hornslied.evitaonline.universe;
 
+import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
 
+import com.tistory.hornslied.evitaonline.EvitaOnline;
 import com.tistory.hornslied.evitaonline.balance.BalanceOwner;
 import com.tistory.hornslied.evitaonline.rank.Rank;
 import com.tistory.hornslied.evitaonline.universe.nation.Nation;
@@ -155,6 +157,11 @@ public class EvitaPlayer implements BalanceOwner {
 	@Override
 	public void setBalance(long balance) {
 		this.balance = balance;
+		try {
+			EvitaOnline.getInstance().getUniverseManager().savePlayer(this);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
@@ -170,10 +177,20 @@ public class EvitaPlayer implements BalanceOwner {
 	@Override
 	public void deposit(long balance) {
 		this.balance += balance;
+		try {
+			EvitaOnline.getInstance().getUniverseManager().savePlayer(this);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
 	public void withdraw(long balance) {
 		this.balance -= balance;
+		try {
+			EvitaOnline.getInstance().getUniverseManager().savePlayer(this);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 }
