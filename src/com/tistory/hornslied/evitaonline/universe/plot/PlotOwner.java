@@ -46,10 +46,6 @@ public class PlotOwner {
 	}
 	
 	public boolean isCombatable() {
-		if(forcePvp) {
-			return true;
-		} else {
-			return pvp;
-		}
+		return forcePvp || pvp;
 	}
 }

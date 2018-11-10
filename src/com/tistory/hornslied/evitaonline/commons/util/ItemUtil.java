@@ -17,6 +17,16 @@ public class ItemUtil {
 		item.setItemMeta(meta);
 		return item;
 	}
+
+	public static ItemStack create(Material type, short data, String displayName, String... lore) {
+		ItemStack item = new ItemStack(type);
+		item.setDurability(data);
+		ItemMeta meta = item.getItemMeta();
+		meta.setDisplayName(displayName);
+		meta.setLore(Arrays.asList(lore));
+		item.setItemMeta(meta);
+		return item;
+	}
 	
 	public static boolean compareDisplayName(ItemStack o1, ItemStack o2) {
 		if(o1 == null && o2 == null)

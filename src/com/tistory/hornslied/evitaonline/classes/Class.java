@@ -8,8 +8,6 @@ import com.tistory.hornslied.evitaonline.EvitaOnline;
 
 public abstract class Class implements Listener {
 	
-	protected ClassManager manager = EvitaOnline.getInstance().getClassManager();
-	
 	protected String name;
 	
 	public Class(String name) {

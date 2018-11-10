@@ -3,6 +3,7 @@ package com.tistory.hornslied.evitaonline.commons.util.help;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import com.tistory.hornslied.evitaonline.commons.util.C;
@@ -119,5 +120,13 @@ public class Help {
 	public void send(Player player, int index) {
 		for(JsonMessage message : buildJson(index))
 			message.send(player);
+	}
+	
+	public void send(CommandSender sender, int index) {
+		if(sender instanceof Player) {
+			send((Player) sender, index);
+		} else {
+			sender.sendMessage(buildString(index));
+		}
 	}
 }

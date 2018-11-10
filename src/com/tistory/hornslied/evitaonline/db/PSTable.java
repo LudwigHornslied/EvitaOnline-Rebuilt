@@ -28,6 +28,10 @@ public class PSTable {
 			"INSERT INTO PLOTS (world, x, z, plotOwnerType, plotOwner, residents) VALUES (?, ?, ?, ?, ?, ?)"
 			);
 	
+	public static PreparedStatement save_new_ac = db.getPreparedStatement(
+			"INSERT INTO ANCIENTCITIES (uuid, name) VALUES (?, ?)"
+			);
+	
 	public static PreparedStatement save_world = db.getPreparedStatement(
 			"UPDATE WORLDS SET claimable = ?, endermanGrief = ?, mobSpawning = ?, registeredMobs = ? WHERE = name = ?"
 			);
@@ -46,5 +50,9 @@ public class PSTable {
 	
 	public static PreparedStatement save_plot = db.getPreparedStatement(
 			"UPDATE PLOTS SET plotOwnerType = ?, plotOwner = ?, plotType = ?, owner = ?, residents = ?, pvp = ?, mobSpawning = ? WHERE world = ?, x = ?, z = ?"
+			);
+	
+	public static PreparedStatement save_pvpprot = db.getPreparedStatement(
+			"INSERT INTO PVPPROTS (uuid, time) VALUES(?, ?)"
 			);
 }

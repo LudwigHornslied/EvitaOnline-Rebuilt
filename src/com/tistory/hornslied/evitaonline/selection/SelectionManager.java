@@ -14,6 +14,7 @@ import com.tistory.hornslied.evitaonline.EvitaOnline;
 import com.tistory.hornslied.evitaonline.commons.util.C;
 import com.tistory.hornslied.evitaonline.commons.util.ItemUtil;
 import com.tistory.hornslied.evitaonline.commons.util.P;
+import com.tistory.hornslied.evitaonline.permission.Perm;
 
 public class SelectionManager implements Listener {
 
@@ -34,6 +35,10 @@ public class SelectionManager implements Listener {
 		selection2 = new HashMap<>();
 		
 		Bukkit.getPluginManager().registerEvents(this, this.plugin);
+	}
+	
+	public ItemStack getWand() {
+		return wand;
 	}
 	
 	public Selection getSelection(Player player) {
@@ -59,12 +64,23 @@ public class SelectionManager implements Listener {
 		return new Selection(world, world.getBlockAt(minx, miny, minz), world.getBlockAt(maxx, maxy, maxz));
 	}
 	
+	public Block getFirstPoint(Player player) {
+		return selection1.get(player);
+	}
+	
+	public Block getSecondPoint(Player player) {
+		return selection2.get(player);
+	}
+	
 	@EventHandler
 	public void onClick(PlayerInteractEvent event) {
 		if(!event.hasBlock())
 			return;
 		
 		Player player = event.getPlayer();
+		
+		if(!player.hasPermission(Perm.MOD))
+			return;
 		
 		ItemStack item = player.getInventory().getItemInMainHand();
 		
@@ -73,12 +89,20 @@ public class SelectionManager implements Listener {
 		
 		event.setCancelled(true);
 		
+		Block block = event.getClickedBlock();
+		
 		switch(event.getAction()) {
 		case LEFT_CLICK_BLOCK:
-			selection1.put(player, event.getClickedBlock());
+			if(block.equals(selection1.get(player)))
+				return;
+			
+			selection1.put(player, block);
 			player.sendMessage(P.Server + C.Yellow + "1번 선택 지점 지정.");
 			break;
 		case RIGHT_CLICK_BLOCK:
+			if(block.equals(selection2.get(player)))
+				return;
+			
 			player.sendMessage(P.Server + C.Yellow + "2번 선택 지점 지정.");
 			selection2.put(player, event.getClickedBlock());
 			break;

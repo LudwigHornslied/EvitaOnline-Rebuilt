@@ -15,11 +15,16 @@ import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
+import com.tistory.hornslied.evitaonline.EvitaOnline;
 import com.tistory.hornslied.evitaonline.api.EvitaAPI;
 import com.tistory.hornslied.evitaonline.commons.util.C;
+import com.tistory.hornslied.evitaonline.commons.util.TimeUtil;
+import com.tistory.hornslied.evitaonline.timer.TimerManager;
 import com.tistory.hornslied.evitaonline.universe.EvitaPlayer;
 
 public class EvitaScoreboard {
+	
+	private static TimerManager timerManager = EvitaOnline.getInstance().getTimerManager();
 	
 	private final Player viewer;
 	private final EvitaPlayer evitaViewer;
@@ -60,6 +65,24 @@ public class EvitaScoreboard {
 		rows.add("플레이어: " + C.Lime + viewer.getName());
 		rows.add("마을: " + C.Lime + ((evitaViewer.hasTown()) ? evitaViewer.getTown().getName() : "없음"));
 		rows.add("소지금: " + C.Lime + evitaViewer.getBalance() + " 페론");
+		
+		if(timerManager.enderPearlTimer.isContaining(viewer.getUniqueId()) ||
+				timerManager.combatTimer.isContaining(viewer.getUniqueId()) ||
+				timerManager.pvpProtTimer.isContaining(viewer.getUniqueId()) ||
+				timerManager.teleportTimer.isContaining(viewer.getUniqueId()))
+			rows.add(C.Aqua);
+
+		if(timerManager.pvpProtTimer.isContaining(viewer.getUniqueId()))
+			rows.add("PvP 보호: " + C.Lime + TimeUtil.formatTime(timerManager.pvpProtTimer.getRemaining(viewer.getUniqueId())));
+
+		if(timerManager.combatTimer.isContaining(viewer.getUniqueId()))
+			rows.add("컴뱃 태그: " + C.Lime + timerManager.combatTimer.getRemaining(viewer.getUniqueId())/1000 + " 초");
+		
+		if(timerManager.enderPearlTimer.isContaining(viewer.getUniqueId()))
+			rows.add("엔더 진주: " + C.Lime + timerManager.enderPearlTimer.getRemaining(viewer.getUniqueId())/1000 + " 초");
+		
+		if(timerManager.teleportTimer.isContaining(viewer.getUniqueId()))
+			rows.add("텔레포트: " + C.Lime + timerManager.teleportTimer.getRemaining(viewer.getUniqueId())/1000 + " 초");
 		
 		for(int i = 0; i < 16; i++) {
             if(i < rows.size())

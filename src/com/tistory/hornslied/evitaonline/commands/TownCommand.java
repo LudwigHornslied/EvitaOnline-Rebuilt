@@ -12,21 +12,23 @@ import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandContext;
 import com.sk89q.minecraft.util.commands.CommandException;
 import com.sk89q.minecraft.util.commands.CommandPermissions;
+import com.sk89q.minecraft.util.commands.CommandPermissionsException;
 import com.sk89q.minecraft.util.commands.CommandSenderTypeException;
 import com.sk89q.minecraft.util.commands.NestedCommand;
 import com.tistory.hornslied.evitaonline.EvitaOnline;
 import com.tistory.hornslied.evitaonline.api.EvitaAPI;
+import com.tistory.hornslied.evitaonline.api.Messaging;
 import com.tistory.hornslied.evitaonline.commons.util.C;
 import com.tistory.hornslied.evitaonline.commons.util.P;
 import com.tistory.hornslied.evitaonline.commons.util.help.Help;
 import com.tistory.hornslied.evitaonline.commons.util.help.HelpRow;
 import com.tistory.hornslied.evitaonline.commons.util.jsonchat.JsonMessage;
-import com.tistory.hornslied.evitaonline.permission.Perm;
 import com.tistory.hornslied.evitaonline.universe.Coord;
 import com.tistory.hornslied.evitaonline.universe.EvitaPlayer;
 import com.tistory.hornslied.evitaonline.universe.EvitaWorld;
 import com.tistory.hornslied.evitaonline.universe.UniverseManager;
 import com.tistory.hornslied.evitaonline.universe.town.Town;
+import com.tistory.hornslied.evitaonline.universe.town.TownRank;
 
 public class TownCommand {
 	
@@ -37,32 +39,21 @@ public class TownCommand {
 	static {
 		help.addPage()
 		.addRow(new HelpRow("/마을 정보", ""))
-		.addRow(new HelpRow("/마을 귀환", "마을로 돌아옵니다."));
+		.addRow(new HelpRow("/마을 귀환", "마을로 돌아옵니다."))
+		.addRow(new HelpRow("/마을 생성", "10000 페론을 지불하고 서있는 위치에 마을을 생성합니다."));
 	}
 
-	@Command(aliases = { "town", "마을" }, desc = "", max = -1)
+	@Command(aliases = { "town", "마을" }, desc = "")
 	@NestedCommand(value = SubCommand.class, executeBody = true)
 	public static void town(CommandContext args, CommandSender sender) {
-		if (sender instanceof Player) {
-			for (JsonMessage message : help.buildJson(0)) {
-				message.sendToPlayer((Player) sender);
-			}
-		} else {
-			sender.sendMessage(help.buildString(0));
-		}
+		help.send(sender, 0);
 	}
 	
 	public static class SubCommand {
-		@Command(aliases = {"?", "help", "도움말"}, desc = "", min = 0, max = 1)
+		@Command(aliases = {"?", "help", "도움말"}, desc = "", max = 1)
 		public static void help(CommandContext args, CommandSender sender) throws CommandException {
 			if (args.argsLength() == 0) {
-				if (sender instanceof Player) {
-					for (JsonMessage message : help.buildJson(0)) {
-						message.sendToPlayer((Player) sender);
-					}
-				} else {
-					sender.sendMessage(help.buildString(0));
-				}
+				help.send(sender, 0);
 			} else {
 				int index = args.getInteger(0);
 				if (index > help.size())
@@ -108,6 +99,9 @@ public class TownCommand {
 				
 				
 			} else {
+				if(!sender.hasPermission("evitaonline.mod"))
+					throw new CommandPermissionsException();
+				
 				
 			}
 		}
@@ -138,7 +132,7 @@ public class TownCommand {
 			
 			String name = args.getString(0);
 			if(universeManager.isBlackListedName(name))
-				throw new CommandException("이미 존재하는 마을이름이거나 사용이 불가능한 이름입니다.");
+				throw new CommandException("이미 존재하거나 사용이 불가능한 이름입니다.");
 			
 			universeManager.newTown(name, evitaPlayer, location);
 			try {
@@ -162,6 +156,9 @@ public class TownCommand {
 				if(!evitaPlayer.hasTown())
 					throw new CommandException("소속된 마을이 없습니다.");
 				
+				if(evitaPlayer.getTownRank() != TownRank.MAYOR)
+					throw new CommandException("마을의 시장만 마을을 해체할 수 있습니다.");
+				
 				Town town = evitaPlayer.getTown();
 				
 				if(town.isCapital())
@@ -171,7 +168,7 @@ public class TownCommand {
 			}
 		}
 		
-		@Command(aliases = { "claim", "영토취득" }, desc = "", min = 0, max = 1)
+		@Command(aliases = { "claim", "영토취득" }, desc = "", max = 1)
 		@CommandPermissions("evitaonline.vicemayor")
 		public static void claim(CommandContext args, CommandSender sender) throws CommandException {
 			if (!(sender instanceof Player))
@@ -196,7 +193,7 @@ public class TownCommand {
 			if (evitaWorld.getMinDistanceFromOtherTown(location, town) < 6)
 				throw new CommandException("다른 마을에서 너무 가깝습니다.");
 			
-			if(town.getMaxPlot() == town.getPlotNumber())
+			if(town.getMaxPlot() <= town.getPlotNumber())
 				throw new CommandException("영토 취득 한계에 이르렀습니다.");
 			
 			World world = location.getWorld();
@@ -210,11 +207,18 @@ public class TownCommand {
 				throw new CommandException("마을 영토와 인접한 영역만 취득할 수 있습니다.");
 			
 			evitaWorld.newPlot(Coord.parseCoord(location), town);
+			Messaging.sendTownMessage(town, P.Universe + C.Aqua + "영토를 취득하였습니다. (" +  x + ", " + z + ")");
+		}
+		
+		@Command(aliases = { "unclaim", "취득해제" }, desc = "", min = 0, max = 0)
+		@CommandPermissions("evitaonline.vicemayor")
+		public static void unclaim(CommandContext args, CommandSender sender) throws CommandException {
+			
 		}
 		
 		@Command(aliases = { "set", "설정" }, desc = "", min = 0, max = 1)
 		@CommandPermissions("evitaonline.vicemayor")
-		@NestedCommand(Set.class)
+		@NestedCommand(SetCommand.class)
 		public static void set(CommandContext args, CommandSender sender) throws CommandException {
 			
 		}
@@ -227,7 +231,7 @@ public class TownCommand {
 		}
 	}
 	
-	public static class Set {
+	public static class SetCommand {
 		
 		@Command(aliases = { "name", "이름" }, desc = "", min = 1, max = 1)
 		public static void name(CommandContext args, CommandSender sender) throws CommandException {

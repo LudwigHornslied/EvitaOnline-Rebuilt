@@ -9,6 +9,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
+import com.tistory.hornslied.evitaonline.EvitaOnline;
 import com.tistory.hornslied.evitaonline.commons.util.C;
 import com.tistory.hornslied.evitaonline.commons.util.ItemUtil;
 
@@ -46,7 +47,7 @@ public class Archer extends Class {
 	public void rapidShot(PlayerInteractEvent event) {
 		Player player = event.getPlayer();
 		
-		if(!equals(manager.getPlayerClass(player)))
+		if(!equals(EvitaOnline.getInstance().getClassManager().getPlayerClass(player)))
 			return;
 		
 		switch(event.getAction()) {

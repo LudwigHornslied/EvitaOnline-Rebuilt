@@ -4,6 +4,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+import org.bukkit.entity.Player;
+
 import com.tistory.hornslied.evitaonline.universe.EvitaPlayer;
 import com.tistory.hornslied.evitaonline.universe.town.Town;
 
@@ -64,6 +66,14 @@ public class Nation {
 		int out = 0;
 		for(Town town : towns) {
 			out += town.getResidentsNumber();
+		}
+		return out;
+	}
+	
+	public Set<Player> getOnlinePlayers() {
+		Set<Player> out = new HashSet<>();
+		for(Town town : towns) {
+			out.addAll(town.getOnlinePlayers());
 		}
 		return out;
 	}

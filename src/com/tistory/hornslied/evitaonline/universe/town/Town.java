@@ -1,12 +1,17 @@
 package com.tistory.hornslied.evitaonline.universe.town;
 
+import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
 
+import com.tistory.hornslied.evitaonline.EvitaOnline;
 import com.tistory.hornslied.evitaonline.balance.BalanceOwner;
+import com.tistory.hornslied.evitaonline.structure.Structure;
 import com.tistory.hornslied.evitaonline.universe.EvitaPlayer;
 import com.tistory.hornslied.evitaonline.universe.nation.Nation;
 import com.tistory.hornslied.evitaonline.universe.plot.UUIDPlotOwner;
@@ -25,7 +30,10 @@ public class Town extends UUIDPlotOwner implements BalanceOwner {
 	
 	private long balance;
 	
+	private Set<Structure> structures;
+	
 	private boolean mobSpawning;
+	private boolean buildable;
 	
 	public Town(String name, UUID uuid, long registered) {
 		super(uuid);
@@ -37,6 +45,8 @@ public class Town extends UUIDPlotOwner implements BalanceOwner {
 		description = "마을 설명(/마을 설정 설명 <메시지>)";
 		bonusBlocks = 0;
 		balance = 0;
+		
+		structures = new HashSet<>();
 	}
 	
 	public void setName(String name) {
@@ -65,6 +75,10 @@ public class Town extends UUIDPlotOwner implements BalanceOwner {
 	
 	public void setMobSpawning(boolean mobSpawning) {
 		this.mobSpawning = mobSpawning;
+	}
+	
+	public void setBuildable(boolean buildable) {
+		this.buildable = buildable;
 	}
 	
 	public void addPlayer(EvitaPlayer player) {
@@ -107,6 +121,19 @@ public class Town extends UUIDPlotOwner implements BalanceOwner {
 		return residents.size();
 	}
 	
+	public Set<Player> getOnlinePlayers() {
+		Set<Player> out = new HashSet<>();
+		for(EvitaPlayer resident : residents) {
+			Player player = Bukkit.getPlayer(resident.getUuid());
+			
+			if(player == null || !player.isOnline())
+				continue;
+			
+			out.add(player);
+		}
+		return out;
+	}
+	
 	public int getMaxPlot() {
 		return residents.size() * 7 + bonusBlocks;
 	}
@@ -125,6 +152,10 @@ public class Town extends UUIDPlotOwner implements BalanceOwner {
 	
 	public boolean isMobSpawning() {
 		return mobSpawning;
+	}
+	
+	public boolean isBuildable() {
+		return buildable;
 	}
 	
 	@Override
@@ -155,5 +186,14 @@ public class Town extends UUIDPlotOwner implements BalanceOwner {
 	@Override
 	public void withdraw(long balance) {
 		this.balance -= balance;
+	}
+
+	@Override
+	public void saveBalance() {
+		try {
+			EvitaOnline.getInstance().getUniverseManager().saveTown(this);
+		} catch(SQLException e) {
+			e.printStackTrace();
+		}
 	}
 }

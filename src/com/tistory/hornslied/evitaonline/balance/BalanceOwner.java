@@ -7,4 +7,5 @@ public interface BalanceOwner {
 	abstract public boolean hasBalance(long amount);
 	abstract public void deposit(long balance);
 	abstract public void withdraw(long balance);
+	abstract public void saveBalance();
 }

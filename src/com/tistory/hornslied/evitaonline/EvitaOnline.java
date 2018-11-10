@@ -14,9 +14,15 @@ import com.sk89q.minecraft.util.commands.CommandUsageException;
 import com.sk89q.minecraft.util.commands.CommandsManager;
 import com.sk89q.minecraft.util.commands.MissingNestedCommandException;
 import com.sk89q.minecraft.util.commands.WrappedCommandException;
+import com.tistory.hornslied.evitaonline.balance.BalanceManager;
 import com.tistory.hornslied.evitaonline.chat.ChatManager;
 import com.tistory.hornslied.evitaonline.classes.ClassManager;
+import com.tistory.hornslied.evitaonline.combat.CombatLogManager;
 import com.tistory.hornslied.evitaonline.combat.OldCombatManager;
+import com.tistory.hornslied.evitaonline.commands.AncientCityCommand;
+import com.tistory.hornslied.evitaonline.commands.ChatCommand;
+import com.tistory.hornslied.evitaonline.commands.EconomyCommand;
+import com.tistory.hornslied.evitaonline.commands.SelectionCommand;
 import com.tistory.hornslied.evitaonline.commands.TownCommand;
 import com.tistory.hornslied.evitaonline.commons.util.C;
 import com.tistory.hornslied.evitaonline.commons.util.P;
@@ -24,7 +30,9 @@ import com.tistory.hornslied.evitaonline.commons.util.repeater.RepeatHandler;
 import com.tistory.hornslied.evitaonline.db.DBManager;
 import com.tistory.hornslied.evitaonline.dynmap.DynmapManager;
 import com.tistory.hornslied.evitaonline.scoreboard.ScoreboardManager;
+import com.tistory.hornslied.evitaonline.selection.SelectionManager;
 import com.tistory.hornslied.evitaonline.system.SystemManager;
+import com.tistory.hornslied.evitaonline.timer.TimerManager;
 import com.tistory.hornslied.evitaonline.universe.UniverseManager;
 
 import fr.minuskube.inv.InventoryManager;
@@ -39,11 +47,15 @@ public class EvitaOnline extends JavaPlugin {
 	private DBManager dbManager;
 	private UniverseManager universeManager;
 	private SystemManager systemManager;
+	private BalanceManager balanceManager;
 	private OldCombatManager oldCombatManager;
 	private ChatManager chatManager;
+	private TimerManager timerManager;
+	private CombatLogManager combatLogManager;
 	private ScoreboardManager scoreboardManager;
 	private DynmapManager dynmapManager;
 	private ClassManager classManager;
+	private SelectionManager selectionManager;
 	
 	private InventoryManager invManager;
 	
@@ -67,12 +79,24 @@ public class EvitaOnline extends JavaPlugin {
 		return systemManager;
 	}
 	
+	public BalanceManager getBalanceManager() {
+		return balanceManager;
+	}
+	
 	public OldCombatManager getOldCombatManager() {
 		return oldCombatManager;
 	}
 	
 	public ChatManager getChatManager() {
 		return chatManager;
+	}
+	
+	public TimerManager getTimerManager() {
+		return timerManager;
+	}
+	
+	public CombatLogManager getCombatLogManager() {
+		return combatLogManager;
 	}
 	
 	public ScoreboardManager getScoreboardManager() {
@@ -87,9 +111,13 @@ public class EvitaOnline extends JavaPlugin {
 		return classManager;
 	}
 	
+	public SelectionManager getSelectionManager() {
+		return selectionManager;
+	}
+	
 	public InventoryManager getInvManager() {
 		return invManager;
-	};
+	}
 	
 	@Override
 	public void onEnable() {
@@ -103,14 +131,18 @@ public class EvitaOnline extends JavaPlugin {
 		dbManager = new DBManager(this);
 		universeManager = new UniverseManager(this);
 		systemManager = new SystemManager(this);
+		balanceManager = new BalanceManager(this);
 		oldCombatManager = new OldCombatManager(this);
 		chatManager = new ChatManager(this);
+		timerManager = new TimerManager(this);
+		combatLogManager = new CombatLogManager(this);
 		scoreboardManager = new ScoreboardManager(this);
         if(Bukkit.getPluginManager().getPlugin("dynmap") != null) {
         	dynmapManager = new DynmapManager(this);
         }
         classManager = new ClassManager(this);
-		
+		selectionManager = new SelectionManager(this);
+        
 		setupCommands();
 	}
 	
@@ -124,8 +156,11 @@ public class EvitaOnline extends JavaPlugin {
         CommandsManagerRegistration cmdRegister = new CommandsManagerRegistration(this, this.commands);
         
         //Register commands
+        cmdRegister.register(ChatCommand.class);
         cmdRegister.register(TownCommand.class);
-        
+        cmdRegister.register(AncientCityCommand.class);
+        cmdRegister.register(EconomyCommand.class);
+        cmdRegister.register(SelectionCommand.class);
 	}
 	
 	@Override

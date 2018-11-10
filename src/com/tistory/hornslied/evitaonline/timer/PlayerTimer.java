@@ -28,6 +28,10 @@ public abstract class PlayerTimer extends AbstractTimer {
 		Bukkit.getPluginManager().callEvent(new TimerCancelEvent(uuid, this));
 	}
 	
+	public long getRemaining(UUID uuid) {
+		return timers.get(uuid).getRemaining();
+	}
+	
 	public boolean isContaining(UUID uuid) {
 		return timers.containsKey(uuid);
 	}

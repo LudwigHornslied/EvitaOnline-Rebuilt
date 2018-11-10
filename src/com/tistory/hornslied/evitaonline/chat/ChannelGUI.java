@@ -31,6 +31,7 @@ public class ChannelGUI implements InventoryProvider {
 					C.BDarkGray + "50블럭 이내의 거리에 있는 사람에게만 보이는 채팅입니다."),
 			e -> {
 				Bukkit.dispatchCommand(e.getWhoClicked(), "channel local");
+				e.getWhoClicked().closeInventory();
 			});
 	
 	private static ClickableItem CHANNEL_TOWN = ClickableItem.of(
@@ -40,6 +41,7 @@ public class ChannelGUI implements InventoryProvider {
 					C.BDarkGray + "같은 마을에 소속된 사람에게만 보이는 채팅입니다."),
 			e -> {
 				Bukkit.dispatchCommand(e.getWhoClicked(), "channel town");
+				e.getWhoClicked().closeInventory();
 			});
 	
 	private static ClickableItem CHANNEL_NATION = ClickableItem.of(
@@ -49,6 +51,7 @@ public class ChannelGUI implements InventoryProvider {
 					C.BDarkGray + "같은 국가에 소속된 사람에게만 보이는 채팅입니다."),
 			e -> {
 				Bukkit.dispatchCommand(e.getWhoClicked(), "channel nation");
+				e.getWhoClicked().closeInventory();
 			});
 	
 	private static ClickableItem CHANNEL_GLOBAL = ClickableItem.of(
@@ -58,6 +61,7 @@ public class ChannelGUI implements InventoryProvider {
 					C.BDarkGray + "서버에 접속한 모두에게 보이는 채팅입니다."),
 			e -> {
 				Bukkit.dispatchCommand(e.getWhoClicked(), "channel global");
+				e.getWhoClicked().closeInventory();
 			});
 	
 	private static ClickableItem CHANNEL_ADMIN = ClickableItem.of(
@@ -67,37 +71,41 @@ public class ChannelGUI implements InventoryProvider {
 					C.BDarkGray + "관리자 전용 채널."),
 			e -> {
 				Bukkit.dispatchCommand(e.getWhoClicked(), "channel global");
+				e.getWhoClicked().closeInventory();
 			});
 
 	@Override
 	public void init(Player player, InventoryContents contents) {
+		refreshGUI(player, contents);
 	}
 
 	@Override
 	public void update(Player player, InventoryContents contents) {
+		refreshGUI(player, contents);
+	}
+	
+	private void refreshGUI(Player player, InventoryContents contents) {
 		EvitaPlayer evitaPlayer = EvitaAPI.getEvitaPlayer(player);
 		
-		ClickableItem[] icons = new ClickableItem[8];
+		contents.set(0, 0, CHANNEL_LOCAL);
 		
-		int i = 0;
+		int i = 1;
 		if(evitaPlayer.hasTown()) {
-			icons[i] = CHANNEL_TOWN;
+			contents.set(0, i, CHANNEL_TOWN);
 			i++;
 		}
 		
 		if(evitaPlayer.hasNation()) {
-			icons[i] = CHANNEL_NATION;
+			contents.set(0, i, CHANNEL_NATION);
 			i++;
 		}
 		
 		if(player.hasPermission(Perm.MOD)) {
-			icons[i] = CHANNEL_GLOBAL;
+			contents.set(0, i, CHANNEL_GLOBAL);
 			i++;
-			icons[i] = CHANNEL_ADMIN;
+			contents.set(0, i, CHANNEL_ADMIN);
 			i++;
 		}
-		
-		
 	}
 
 }

@@ -70,9 +70,33 @@ public class SQL {
 								+ "PRIMARY KEY(uuid)"
 								+ ")";
 	
-	//ELSE
+	public static String MINERALS = "CREATE TABLE IF NOT EXISTS MINERALS ("
+								+ "id INT NOT NULL AUTO_INCREMENT,"
+								+ "world VARCHAR(16) NOT NULL,"
+								+ "min VARCHAR(60) NOT NULL,"
+								+ "max VARCHAR(60) NOT NULL,"
+								+ "PRIMARY KEY(id)"
+								+ ")";
 	
-	public static String DONATIONS = "CREATE TABLE IF NOT EXISTS DONATIONS ("
+	public static String PVPPROTS = "CREATE TABLE IF NOT EXISTS PVPPROTS ("
 								+ "uuid VARCHAR(36) NOT NULL,"
-								+ "amount INT NOT NULL DEFAULT 0,";
+								+ "time BIGINT NOT NULL,"
+								+ "PRIMARY KEY(uuid),"
+								+ "FOREIGN KEY(uuid) REFERENCES PLAYERS(uuid)"
+								+ ")";
+	
+	//LOGS
+	
+	public static String IPS = "CREATE TAVLE IF NOT EXISTS IPS ("
+								+ "ip VARCHAR(32) NOT NULL,"
+								+ "players MEDIUMTEXT NOT NULL,"
+								+ "PRIMARY KEY(ip)"
+								+ ")";
+	
+	public static String IPLOGS = "CREATE TABLE IF NOT EXISTS IPLOGS ("
+								+ "date BIGINT NOT NULL,"
+								+ "uuid VARCHAR(36) NOT NULL,"
+								+ "ip VARCHAR(32) NOT NULL,"
+								+ "PRIMARY KEY(date)"
+								+ ")";
 }

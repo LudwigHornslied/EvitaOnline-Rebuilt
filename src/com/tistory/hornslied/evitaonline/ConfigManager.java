@@ -1,6 +1,7 @@
 package com.tistory.hornslied.evitaonline;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 
 import org.bukkit.configuration.file.FileConfiguration;
@@ -33,12 +34,22 @@ public class ConfigManager {
 		return configs.get(type);
 	}
 	
+	public void saveConfig(ConfigType type) {
+		try {
+			configs.get(type).save(new File(plugin.getDataFolder(), type.getFileName()));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public enum ConfigType {
 		DEFAULT("config.yml"),
 		ALLOWEDPLAYERS("allowedPlayers.yml"),
 		CRATES("crates.yml"),
 		DYNMAP("dynmap.yml"),
-		ITEMS("items.yml");
+		ITEMS("items.yml"),
+		SHOPS("shops.yml"),
+		HOLOGRAMS("holograms.yml");
 		
 		private String fileName;
 		

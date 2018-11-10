@@ -8,11 +8,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import com.tistory.hornslied.evitaonline.EvitaOnline;
-import com.tistory.hornslied.evitaonline.commons.util.repeater.RepeatHandler;
-import com.tistory.hornslied.evitaonline.commons.util.repeater.Repeatable;
-import com.tistory.hornslied.evitaonline.commons.util.repeater.Time;
 
 public class ScoreboardManager implements Listener {
 	
@@ -26,7 +24,13 @@ public class ScoreboardManager implements Listener {
 		scoreboards = new WeakHashMap<>();
 		
 		Bukkit.getPluginManager().registerEvents(this, this.plugin);
-		RepeatHandler.Instance.registerRepeatables(this);
+		new BukkitRunnable() {
+			
+			@Override
+			public void run() {
+				update();
+			}
+		}.runTaskTimer(plugin, 0, 20);
 	}
 	
 	@EventHandler
@@ -41,8 +45,8 @@ public class ScoreboardManager implements Listener {
 		scoreboards.remove(event.getPlayer());
 	}
 	
-	@Repeatable(interval = @Time(seconds = 1))
-    public void tick() {
+	
+    public void update() {
 		for(EvitaScoreboard scoreboard : scoreboards.values())
 			scoreboard.render();
 	}

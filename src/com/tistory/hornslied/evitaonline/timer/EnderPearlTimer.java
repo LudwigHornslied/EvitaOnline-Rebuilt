@@ -12,7 +12,7 @@ import org.bukkit.projectiles.ProjectileSource;
 public class EnderPearlTimer extends PlayerTimer {
 
 	public EnderPearlTimer() {
-		super(15);
+		super(15000);
 	}
 	
 	@EventHandler

@@ -193,4 +193,13 @@ public class EvitaPlayer implements BalanceOwner {
 			e.printStackTrace();
 		}
 	}
+
+	@Override
+	public void saveBalance() {
+		try {
+			EvitaOnline.getInstance().getUniverseManager().savePlayer(this);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
 }

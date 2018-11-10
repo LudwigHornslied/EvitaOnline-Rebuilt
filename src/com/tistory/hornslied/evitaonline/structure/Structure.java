@@ -1,10 +1,9 @@
 package com.tistory.hornslied.evitaonline.structure;
 
-import java.util.Map;
-import java.util
-.Set;
+import java.util.Set;
 
 import org.bukkit.World;
+import org.bukkit.block.Block;
 
 import com.tistory.hornslied.evitaonline.universe.BlockCoord;
 import com.tistory.hornslied.evitaonline.universe.town.Town;
@@ -34,7 +33,7 @@ public class Structure {
 		}
 	}
 	
-	private BlockCoord getByRelativeCoord(BlockCoord blockCoord, RelativeBlockCoord relativeCoord) {
+	private static BlockCoord getByRelativeCoord(BlockCoord blockCoord, RelativeBlockCoord relativeCoord) {
 		int x = blockCoord.getX() + relativeCoord.getRelativeX();
 		int y = blockCoord.getY() + relativeCoord.getRelativeY();
 		int z = blockCoord.getZ() + relativeCoord.getRelativeZ();
@@ -42,4 +41,7 @@ public class Structure {
 		return BlockCoord.parseCoord(x, y, z);
 	}
 	
+	public boolean hasBlock(Block block) {
+		return false;
+	}
 }

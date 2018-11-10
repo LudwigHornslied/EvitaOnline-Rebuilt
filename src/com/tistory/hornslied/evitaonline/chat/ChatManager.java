@@ -107,6 +107,7 @@ public class ChatManager implements Listener {
 		for(Player player : recipients) {
 			message.sendToPlayer(player);
 		}
+		chatLog(sender, channel, mention);
 	}
 	
 	public void whisper(Player player, String target, String message) {
@@ -151,7 +152,16 @@ public class ChatManager implements Listener {
 		}
 	}
 	
-	@EventHandler(priority = EventPriority.HIGHEST)
+	public void chatLog(Player sender, Channel channel, String mention) {
+		EvitaPlayer evitaSender = EvitaAPI.getEvitaPlayer(sender);
+		
+		String log = "[" + channel.getColor() + channel.getName() + C.White + "]";
+		log = log + ((evitaSender.hasNation()) ? "<-" + evitaSender.getNation().getName() + " " : "<");
+		log = log + "[" + evitaSender.getRank().getColor() + evitaSender.getRank().getName() + C.White + "] " + sender.getName() + "> " + channel.getChatColor() + mention;
+		Bukkit.getConsoleSender().sendMessage(log + C.Reset);
+	}
+	
+	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onChat(AsyncPlayerChatEvent event) {
 		event.setCancelled(true);
 		chatProcess(event.getPlayer(), channels.get(event.getPlayer()), event.getMessage());

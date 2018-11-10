@@ -4,8 +4,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
@@ -24,6 +22,7 @@ import org.bukkit.plugin.PluginManager;
 import com.tistory.hornslied.evitaonline.EvitaOnline;
 import com.tistory.hornslied.evitaonline.api.EvitaAPI;
 import com.tistory.hornslied.evitaonline.db.*;
+import com.tistory.hornslied.evitaonline.mine.Mine;
 import com.tistory.hornslied.evitaonline.universe.listeners.*;
 import com.tistory.hornslied.evitaonline.universe.nation.*;
 import com.tistory.hornslied.evitaonline.universe.plot.*;
@@ -36,13 +35,13 @@ public class UniverseManager implements Listener {
 	private ConcurrentHashMap<UUID, EvitaPlayer> players;
 	private ConcurrentHashMap<String, EvitaWorld> worlds;
 	private ConcurrentHashMap<UUID, Town> towns;
+	private ConcurrentHashMap<String, Town> townNames;
 	private ConcurrentHashMap<UUID, AncientCity> ancientCities;
+	private ConcurrentHashMap<String, AncientCity> acNames;
 	private ConcurrentHashMap<UUID, Nation> nations;
+	private ConcurrentHashMap<String, Nation> nationNames;
 	
 	private Mine mine;
-	
-	private Set<String> blacklistedNames;
-	private Set<String> blacklistedNationNames;
 
 	public UniverseManager(EvitaOnline plugin) {
 		this.plugin = plugin;
@@ -50,13 +49,13 @@ public class UniverseManager implements Listener {
 		players = new ConcurrentHashMap<>();
 		worlds = new ConcurrentHashMap<>();
 		towns = new ConcurrentHashMap<>();
+		townNames = new ConcurrentHashMap<>();
 		ancientCities = new ConcurrentHashMap<>();
+		acNames = new ConcurrentHashMap<>();
 		nations = new ConcurrentHashMap<>();
+		nationNames = new ConcurrentHashMap<>();
 		
 		mine = new Mine();
-		
-		blacklistedNames = new HashSet<>();
-		blacklistedNationNames = new HashSet<>();
 
 		try {
 			load();
@@ -106,7 +105,7 @@ public class UniverseManager implements Listener {
 					nationSet.getLong("registered")
 					);
 			nations.put(nation.getUuid(), nation);
-			blacklistedNationNames.add(nation.getName().toLowerCase());
+			nationNames.put(nation.getName().toLowerCase(), nation);
 		}
 		nationSet.close();
 		
@@ -144,7 +143,7 @@ public class UniverseManager implements Listener {
 			}
 			
 			towns.put(town.getUuid(), town);
-			blacklistedNames.add(town.getName().toLowerCase());
+			townNames.put(town.getName().toLowerCase(), town);
 		}
 		townSet.close();
 		
@@ -156,7 +155,7 @@ public class UniverseManager implements Listener {
 					UUID.fromString(acSet.getString("uuid"))
 					);
 			ancientCities.put(ancientCity.getUuid(), ancientCity);
-			blacklistedNames.add(ancientCity.getName().toLowerCase());
+			acNames.put(ancientCity.getName().toLowerCase(), ancientCity);
 		}
 		acSet.close();
 		
@@ -223,7 +222,7 @@ public class UniverseManager implements Listener {
 		PluginManager pm = Bukkit.getPluginManager();
 		
 		pm.registerEvents(new ChunkListener(), plugin);
-		pm.registerEvents(new TownBlockListener(), plugin);
+		pm.registerEvents(new BlockListener(), plugin);
 		pm.registerEvents(new TownPvPListener(), plugin);
 		pm.registerEvents(new WorldListener(), plugin);
 	}
@@ -294,6 +293,15 @@ public class UniverseManager implements Listener {
 		ps.setString(5, (plotOwner instanceof UUIDPlotOwner) ? ((UUIDPlotOwner) plotOwner).getUuid().toString() : null);
 		ps.setString(6, "");
 
+		ps.executeUpdate();
+	}
+	
+	public void saveNewAC(AncientCity ac) throws SQLException {
+		PreparedStatement ps = PSTable.save_new_ac;
+		
+		ps.setString(1, ac.getUuid().toString());
+		ps.setString(2, ac.getName());
+		
 		ps.executeUpdate();
 	}
 	
@@ -418,21 +426,49 @@ public class UniverseManager implements Listener {
 		player.setTown(town);
 		player.setTownRank(TownRank.MAYOR);
 		towns.put(town.getUuid(), town);
+		townNames.put(town.getName().toLowerCase(), town);
 		try {
 			saveNewTown(town);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		blacklistedNames.add(name.toLowerCase());
 		EvitaAPI.getEvitaWorld(spawn.getWorld()).newPlot(Coord.parseCoord(spawn.getChunk()), town);
 	}
 	
 	public void deleteTown(Town town) {
+		for(EvitaPlayer player : town.getResidents()) {
+			player.setTown(null);
+			player.setTownRank(null);
+			player.setNationRank(null);
+			try {
+				savePlayer(player);
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		towns.remove(town.getUuid());
+		townNames.remove(town.getName().toLowerCase());
 		
+		plugin.getDBManager().query("DELETE FROM TOWNS WHERE uuid = '" + town.getUuid().toString() + "'");
+	}
+	
+	public void newAC(String name) {
+		AncientCity ac = new AncientCity(name, UUID.randomUUID());
+		ancientCities.put(ac.getUuid(), ac);
+		acNames.put(ac.getName().toLowerCase(), ac);
+		try {
+			saveNewAC(ac);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public EvitaPlayer getEvitaPlayer(UUID uuid) {
 		return players.get(uuid);
+	}
+	
+	public Collection<EvitaPlayer> getEvitaPlayers() {
+		return players.values();
 	}
 
 	public EvitaWorld getEvitaWorld(String name) {
@@ -444,11 +480,7 @@ public class UniverseManager implements Listener {
 	}
 	
 	public Town getTown(String name) {
-		for(Town town : towns.values())
-			if(town.getName().equalsIgnoreCase(name))
-				return town;
-		
-		return null;
+		return townNames.get(name.toLowerCase());
 	}
 	
 	public Collection<Town> getTowns() {
@@ -463,12 +495,20 @@ public class UniverseManager implements Listener {
 		return nations.values();
 	}
 	
+	public AncientCity getAC(UUID uuid) {
+		return ancientCities.get(uuid);
+	}
+	
+	public AncientCity getAC(String name) {
+		return acNames.get(name.toLowerCase());
+	}
+	
 	public boolean isBlackListedName(String name) {
-		return !Pattern.matches("^[a-zA-Z]*$", name) || blacklistedNames.contains(name.toLowerCase());
+		return !Pattern.matches("^[a-zA-Z]*$", name) || townNames.containsKey(name.toLowerCase()) || acNames.containsKey(name.toLowerCase());
 	}
 	
 	public boolean isBlackListedNationName(String name) {
-		return !Pattern.matches("^[a-zA-Z]*$", name) || blacklistedNames.contains(name.toLowerCase());
+		return !Pattern.matches("^[a-zA-Z]*$", name) || nationNames.containsKey(name.toLowerCase());
 	}
 	
 	// EventHandler
